@@ -34,7 +34,6 @@ const generateOptions = (props: object) => {
   const mapObject = (source: any) => {
     let r: any = {};
     // TODO 数据合法性校验
-    // if (source instanceof Array) source = source[0];
     Object.keys(source).forEach((key) => {
       const keyName = key;
       const value = source[key];

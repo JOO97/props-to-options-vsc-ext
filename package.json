@@ -14,10 +14,55 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "propsToOptions",
+          "title": "Props to Options",
+          "icon": "images/dep.svg"
+        }
+      ]
+    },
+    "views": {
+      "propsToOptions": [
+        {
+          "id": "collectionsView",
+          "name": "Collections"
+        },
+        {
+          "id": "dictionaryView",
+          "name": "Dictionary"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "props2options.transform",
-        "title": "@transform"
+        "title": "props2options: Transform"
+      },
+      {
+        "command": "props2options.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "images/light/refresh.svg",
+          "dark": "images/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "props2options.addCollection",
+        "title": "New",
+        "icon": {
+          "light": "images/light/folder.svg",
+          "dark": "images/dark/folder.svg"
+        }
+      },
+      {
+        "command": "props2options.editCollection",
+        "title": "Edit",
+        "icon": {
+          "light": "images/light/edit.svg",
+          "dark": "images/dark/edit.svg"
+        }
       }
     ],
     "menus": {
@@ -25,6 +70,22 @@
         {
           "command": "props2options.transform",
           "when": "editorHasSelection"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "props2options.refresh",
+          "group": "navigation"
+        },
+        {
+          "command": "props2options.addCollection",
+          "group": "navigation",
+          "when": "view == collectionsView"
+        },
+        {
+          "command": "props2options.editCollection",
+          "group": "navigation",
+          "when": "view == collectionsView"
         }
       ]
     }
@@ -51,6 +112,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "prettier": "^2.8.2"
   }
 }

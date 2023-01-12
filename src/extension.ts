@@ -5,8 +5,12 @@ const prettier = require("prettier");
 
 import * as vscode from "vscode";
 import { readHtml } from "./util";
+import { NodeCollectionProvider } from "./collection";
+import { NodeDictionaryProvider } from "./dictionary";
 
 const { transform } = require("./tansform");
+
+let provider: vscode.TreeDataProvider<any>;
 
 const createPanel = async (context: vscode.ExtensionContext) => {
   const panel = vscode.window.createWebviewPanel(
@@ -33,7 +37,7 @@ const createPanel = async (context: vscode.ExtensionContext) => {
         return /^\/{2,}/.test(word) || /^\/\*/.test(word) ? "" : word;
       });
       content = prettier.format(content, { tabWidth: 2, parser: "json" });
-      console.log("c", content);
+      console.log("c", JSON.parse(content));
       const res = transform(JSON.parse(content));
       panel.webview.postMessage({ type: "update", data: res });
     } catch (error) {
@@ -51,9 +55,20 @@ const createPanel = async (context: vscode.ExtensionContext) => {
   return panel;
 };
 
-const runCommand = async (context: vscode.ExtensionContext) => {
-  console.log("getCommands", vscode.commands.getCommands());
+const runTransformCommand = async (context: vscode.ExtensionContext) => {
   const panel = await createPanel(context);
+};
+
+const runAddCollectionCommand = async (context: vscode.ExtensionContext) => {
+  const res = (
+    await vscode.window.showInputBox({
+      prompt: "Enter the repository description",
+      placeHolder: "Repository description (optional)",
+      value: "\r\n",
+      ignoreFocusOut: true,
+    })
+  )?.trim();
+  console.log("showInputBox", res);
 };
 
 // This method is called when your extension is activated
@@ -63,19 +78,26 @@ export function activate(context: vscode.ExtensionContext) {
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "props2options" is now active!');
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
-    "props2options.transform",
-    () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      runCommand(context);
-    }
+  /* commands */
+  vscode.commands.registerCommand("props2options.transform", () =>
+    runTransformCommand(context)
+  );
+  vscode.commands.registerCommand("props2options.addCollection", () =>
+    runAddCollectionCommand(context)
   );
 
-  context.subscriptions.push(disposable);
+  //sidebar
+  vscode.window.registerTreeDataProvider(
+    "collectionsView",
+    new NodeCollectionProvider()
+  );
+  vscode.window.registerTreeDataProvider(
+    "dictionaryView",
+    new NodeDictionaryProvider()
+  );
+  // const collectionsView = vscode.window.createTreeView("collectionsView", {
+  //   treeDataProvider: provider,
+  // });
 }
 
 // This method is called when your extension is deactivated
