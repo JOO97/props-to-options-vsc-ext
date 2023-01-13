@@ -19,7 +19,7 @@
         {
           "id": "propsToOptions",
           "title": "Props to Options",
-          "icon": "images/dep.svg"
+          "icon": "images/sidebar-icon.svg"
         }
       ]
     },
@@ -38,7 +38,7 @@
     "commands": [
       {
         "command": "props2options.transform",
-        "title": "props2options: Transform"
+        "title": "Props ➡ DataV Options"
       },
       {
         "command": "props2options.refresh",
@@ -52,8 +52,8 @@
         "command": "props2options.addCollection",
         "title": "New",
         "icon": {
-          "light": "images/light/folder.svg",
-          "dark": "images/dark/folder.svg"
+          "light": "images/light/add.svg",
+          "dark": "images/dark/add.svg"
         }
       },
       {
@@ -62,6 +62,30 @@
         "icon": {
           "light": "images/light/edit.svg",
           "dark": "images/dark/edit.svg"
+        }
+      },
+      {
+        "command": "props2options.addDictionary",
+        "title": "New",
+        "icon": {
+          "light": "images/light/add.svg",
+          "dark": "images/dark/add.svg"
+        }
+      },
+      {
+        "command": "props2options.editDictionary",
+        "title": "Edit",
+        "icon": {
+          "light": "images/light/edit.svg",
+          "dark": "images/dark/edit.svg"
+        }
+      },
+      {
+        "command": "props2options.delDictionary",
+        "title": "Delete",
+        "icon": {
+          "light": "images/light/trash.svg",
+          "dark": "images/dark/trash.svg"
         }
       }
     ],
@@ -86,8 +110,142 @@
           "command": "props2options.editCollection",
           "group": "navigation",
           "when": "view == collectionsView"
+        },
+        {
+          "command": "props2options.addDictionary",
+          "group": "navigation",
+          "when": "view == dictionaryView"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "props2options.editDictionary",
+          "when": "view == dictionaryView",
+          "group": "inline@1"
+        },
+        {
+          "command": "props2options.delDictionary",
+          "when": "view == dictionaryView",
+          "group": "inline@2"
         }
       ]
+    },
+    "configuration": {
+      "title": "Props to Options",
+      "properties": {
+        "props2options.dictionary": {
+          "markdownDescription": "The list of bookmarks",
+          "type": "array",
+          "default": [
+            {
+              "name": "bg",
+              "value": "背景"
+            },
+            {
+              "name": "background",
+              "value": "背景"
+            },
+            {
+              "name": "text",
+              "value": "文本"
+            },
+            {
+              "name": "animation",
+              "value": "动画"
+            },
+            {
+              "name": "cursor",
+              "value": "鼠标样式"
+            },
+            {
+              "name": "padding",
+              "value": "内边距"
+            },
+            {
+              "name": "margin",
+              "value": "外边距"
+            },
+            {
+              "name": "overflow",
+              "value": "溢出"
+            },
+            {
+              "name": "hover",
+              "value": "鼠标经过样式"
+            },
+            {
+              "name": "active",
+              "value": "激活样式"
+            },
+            {
+              "name": "gradient",
+              "value": "渐变"
+            },
+            {
+              "name": "shadow",
+              "value": "阴影"
+            },
+            {
+              "name": "size",
+              "value": "大小"
+            },
+            {
+              "name": "family",
+              "value": "字体"
+            },
+            {
+              "name": "weight",
+              "value": "粗细"
+            },
+            {
+              "name": "indent",
+              "value": "缩进"
+            },
+            {
+              "name": "spacing",
+              "value": "文本间距"
+            },
+            {
+              "name": "color",
+              "value": "颜色"
+            },
+            {
+              "name": "border",
+              "value": "边框"
+            },
+            {
+              "name": "radius",
+              "value": "圆角"
+            },
+            {
+              "name": "type",
+              "value": "类型"
+            },
+            {
+              "name": "column",
+              "value": "列"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "word name"
+              },
+              "value": {
+                "type": "string",
+                "description": "word cn name"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "value"
+            ]
+          }
+        }
+      }
     }
   },
   "scripts": {

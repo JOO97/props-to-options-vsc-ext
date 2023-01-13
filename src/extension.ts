@@ -6,7 +6,7 @@ const prettier = require("prettier");
 import * as vscode from "vscode";
 import { readHtml } from "./util";
 import { NodeCollectionProvider } from "./collection";
-import { NodeDictionaryProvider } from "./dictionary";
+import { DictionaryView, NodeDictionaryProvider } from "./dictionary";
 
 const { transform } = require("./tansform");
 
@@ -91,10 +91,8 @@ export function activate(context: vscode.ExtensionContext) {
     "collectionsView",
     new NodeCollectionProvider()
   );
-  vscode.window.registerTreeDataProvider(
-    "dictionaryView",
-    new NodeDictionaryProvider()
-  );
+
+  const dictionaryView = new DictionaryView(context);
   // const collectionsView = vscode.window.createTreeView("collectionsView", {
   //   treeDataProvider: provider,
   // });

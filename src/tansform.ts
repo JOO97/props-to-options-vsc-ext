@@ -1,3 +1,6 @@
+import * as vscode from "vscode";
+import { getDictionary } from "./dictionary";
+
 const options = require("./options.json");
 
 interface IOption {
@@ -30,19 +33,25 @@ const isFloat = (num: any): boolean => {
   return num != parseInt(num);
 };
 
+const getSetting = (key: string) => {
+  const config = vscode.workspace.getConfiguration("props2options");
+  return config[key];
+};
+
 const generateOptions = (props: object) => {
+  const dictionary = getDictionary();
   const mapObject = (source: any) => {
     let r: any = {};
     // TODO 数据合法性校验
     Object.keys(source).forEach((key) => {
-      const keyName = key;
+      const keyInfo = dictionary.find(({ name }) => name === key);
+      const keyName = keyInfo ? keyInfo.value : key;
       const value = source[key];
       const valueType = typeof value;
       if (valueType === "object") {
         let r2;
         // array
         if (value instanceof Array) {
-          console.log("arr", value, value[0]);
           if (!value.length) return;
           r2 = {
             name: key,
