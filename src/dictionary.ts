@@ -8,8 +8,14 @@ interface IDictionary {
 let dictionary: IDictionary[] = [];
 
 export const getDictionary = (): IDictionary[] => {
-  const config = vscode.workspace.getConfiguration("props2options");
-  return config["dictionary"];
+  const { dictionary: data } =
+    vscode.workspace.getConfiguration("props2options");
+  vscode.commands.executeCommand(
+    "setContext",
+    "dictionaryIsEmpty",
+    !data || !data.length
+  );
+  return data || [];
 };
 
 export class NodeDictionaryProvider implements vscode.TreeDataProvider<Node> {
@@ -20,7 +26,7 @@ export class NodeDictionaryProvider implements vscode.TreeDataProvider<Node> {
   constructor() {}
 
   getTreeItem(element: Node): vscode.TreeItem {
-    console.log("getTreeItem2", element);
+    // console.log("getTreeItem2", element);
     return element;
   }
 
@@ -31,7 +37,6 @@ export class NodeDictionaryProvider implements vscode.TreeDataProvider<Node> {
   }
 
   public refresh(): void {
-    // Triggers the getChildren method to refresh the view
     this._onDidChangeTreeData.fire();
   }
 }
@@ -63,8 +68,7 @@ export class DictionaryView {
   }
 
   async init() {
-    const config = vscode.workspace.getConfiguration("props2options");
-    dictionary = config.dictionary;
+    dictionary = getDictionary();
 
     this.registerCommand();
 
@@ -82,6 +86,13 @@ export class DictionaryView {
     });
     vscode.commands.registerCommand("props2options.delDictionary", (node) =>
       this.runDelDictionaryCommand(node)
+    );
+
+    vscode.commands.registerCommand("props2options.editAllDictionary", () =>
+      this.runEditAllDictionaryCommand()
+    );
+    vscode.commands.registerCommand("props2options.refreshDictionary", () =>
+      this.runRefreshDictionaryCommand()
     );
   }
 
@@ -172,10 +183,59 @@ export class DictionaryView {
     );
   }
 
-  private async runDelDictionaryCommand(node: Node) {
+  private runDelDictionaryCommand(node: Node) {
     this.del({
       name: node.label,
       value: node.description as string,
     });
   }
+
+  private async runEditAllDictionaryCommand() {
+    await vscode.commands.executeCommand<vscode.Location[]>(
+      "workbench.action.openSettings",
+      "props2options.dictionary"
+    );
+
+    // TODO: 打开settings.json并滚动到对应配置所在行
+    // await vscode.commands.executeCommand<vscode.Location[]>(
+    //   "workbench.action.search",
+    //   { revealSetting: { key: "props2options.dictionary", edit: true } }
+    // );
+    // const position = await this.getPositionToReveal(
+    //   "props2options.dictionary",
+    //   edit,
+    //   settingsModel,
+    //   codeEditor
+    // );
+    // const doc = vscode.window.activeTextEditor?.document;
+    // console.log("doc", doc);
+    // _findAndSelect(vscode.window.activeTextEditor!, "props2options.dictionary");
+
+    return;
+    await vscode.commands.executeCommand<vscode.Location[]>(
+      "workbench.action.gotoSymbol"
+    );
+  }
+
+  private runRefreshDictionaryCommand() {
+    dictionary = getDictionary();
+    this.provider?.refresh();
+  }
+}
+
+function _findAndSelect(editor: vscode.TextEditor, findValue: string) {
+  let foundSelections: any[] = [];
+
+  // get all the matches in the document
+  let fullText = editor.document.getText();
+  let matches = [...fullText.matchAll(new RegExp(findValue, "g"))];
+  console.log(0, matches);
+
+  matches.forEach((match: any, index) => {
+    let startPos = editor.document.positionAt(match.index);
+    let endPos = editor.document.positionAt(match.index + match[0].length);
+    foundSelections[index] = new vscode.Selection(startPos, endPos);
+  });
+  console.log("foundSelections", foundSelections);
+  editor.selections = foundSelections;
 }

@@ -3,6 +3,7 @@
   "displayName": "props2options",
   "description": "props2options",
   "version": "0.0.1",
+  "publisher": "JOO",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -27,21 +28,35 @@
       "propsToOptions": [
         {
           "id": "collectionsView",
-          "name": "Collections"
+          "name": "Collections",
+          "when": "config.props2options.showSidebarView == true"
         },
         {
           "id": "dictionaryView",
-          "name": "Dictionary"
+          "name": "Dictionary",
+          "when": "config.props2options.showSidebarView == true"
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "collectionsView",
+        "contents": "No collections saved yet.\nIn order to save collections, you have to open settings.json first.\n[Open settings.json](command:props2options.editCollection)\n collection example\n {\n  \"name\": \"padding\",\n\"value\": {\n\"type\": \"padding\",\n\"name\": \"边距\",\n\"default\": {\n\"top\": 0,\n\"bottom\": 0,\n\"left\": 0,\n\"right\": 0\n  }\n}\n  }",
+        "when": "collectionsIsEmpty == true"
+      },
+      {
+        "view": "dictionaryView",
+        "contents": "No dictionary saved yet.\nIn order to save collections, you could click + button to add your dictionary.",
+        "when": "dictionaryIsEmpty == true"
+      }
+    ],
     "commands": [
       {
         "command": "props2options.transform",
         "title": "Props ➡ DataV Options"
       },
       {
-        "command": "props2options.refresh",
+        "command": "props2options.refreshCollection",
         "title": "Refresh",
         "icon": {
           "light": "images/light/refresh.svg",
@@ -49,16 +64,24 @@
         }
       },
       {
-        "command": "props2options.addCollection",
-        "title": "New",
+        "command": "props2options.editCollection",
+        "title": "Edit",
         "icon": {
-          "light": "images/light/add.svg",
-          "dark": "images/dark/add.svg"
+          "light": "images/light/edit.svg",
+          "dark": "images/dark/edit.svg"
         }
       },
       {
-        "command": "props2options.editCollection",
-        "title": "Edit",
+        "command": "props2options.refreshDictionary",
+        "title": "Refresh",
+        "icon": {
+          "light": "images/light/refresh.svg",
+          "dark": "images/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "props2options.editAllDictionary",
+        "title": "Edit In Settings",
         "icon": {
           "light": "images/light/edit.svg",
           "dark": "images/dark/edit.svg"
@@ -98,11 +121,7 @@
       ],
       "view/title": [
         {
-          "command": "props2options.refresh",
-          "group": "navigation"
-        },
-        {
-          "command": "props2options.addCollection",
+          "command": "props2options.refreshCollection",
           "group": "navigation",
           "when": "view == collectionsView"
         },
@@ -112,7 +131,17 @@
           "when": "view == collectionsView"
         },
         {
+          "command": "props2options.refreshDictionary",
+          "group": "navigation",
+          "when": "view == dictionaryView"
+        },
+        {
           "command": "props2options.addDictionary",
+          "group": "navigation",
+          "when": "view == dictionaryView"
+        },
+        {
+          "command": "props2options.editAllDictionary",
           "group": "navigation",
           "when": "view == dictionaryView"
         }
@@ -133,8 +162,13 @@
     "configuration": {
       "title": "Props to Options",
       "properties": {
+        "props2options.showSidebarView": {
+          "markdownDescription": "Show Sidebar View",
+          "type": "boolean",
+          "default": false
+        },
         "props2options.dictionary": {
-          "markdownDescription": "The list of bookmarks",
+          "markdownDescription": "The list of dictionary",
           "type": "array",
           "default": [
             {
@@ -236,6 +270,248 @@
               "value": {
                 "type": "string",
                 "description": "word cn name"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "value"
+            ]
+          }
+        },
+        "props2options.collections": {
+          "markdownDescription": "The list of collections",
+          "type": "array",
+          "default": [
+            {
+              "name": "padding",
+              "value": {
+                "type": "padding",
+                "name": "边距",
+                "default": {
+                  "top": 0,
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0
+                }
+              }
+            },
+            {
+              "name": "margin",
+              "value": {
+                "type": "margin",
+                "name": "边距",
+                "default": {
+                  "top": 0,
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0
+                }
+              }
+            },
+            {
+              "name": "cursor",
+              "value": {
+                "name": "鼠标样式",
+                "type": "select",
+                "options": [
+                  {
+                    "value": "auto",
+                    "label": "自动"
+                  },
+                  {
+                    "value": "default",
+                    "label": "默认"
+                  },
+                  {
+                    "value": "pointer",
+                    "label": "手指"
+                  },
+                  {
+                    "value": "text",
+                    "label": "文本"
+                  }
+                ],
+                "default": "text"
+              }
+            },
+            {
+              "name": "family",
+              "value": {
+                "name": "字体",
+                "type": "select",
+                "options": [
+                  {
+                    "name": "微软雅黑",
+                    "value": "Microsoft Yahei"
+                  },
+                  {
+                    "name": "阿里巴巴普惠体",
+                    "value": "AlibabaPuHuiTi"
+                  },
+                  {
+                    "name": "思源黑",
+                    "value": "思源黑"
+                  },
+                  {
+                    "name": "苹方",
+                    "value": "苹方"
+                  },
+                  {
+                    "name": "宋体",
+                    "value": "宋体"
+                  },
+                  {
+                    "name": "黑体",
+                    "value": "黑体"
+                  },
+                  {
+                    "name": "幼圆",
+                    "value": "幼圆"
+                  }
+                ],
+                "default": "Microsoft Yahei",
+                "description": "请选择您系统有的字体,如果您系统无此字体,标题将会显示默认字体"
+              }
+            },
+            {
+              "name": "weight",
+              "value": {
+                "name": "字体粗细",
+                "type": "select",
+                "options": [
+                  {
+                    "name": "常规字体",
+                    "value": "normal"
+                  },
+                  {
+                    "name": "bolder",
+                    "value": "bolder"
+                  },
+                  {
+                    "name": "lighter",
+                    "value": "lighter"
+                  }
+                ],
+                "default": "500"
+              }
+            },
+            {
+              "name": "decoration",
+              "value": {
+                "name": "修饰线",
+                "type": "group",
+                "children": {
+                  "style": {
+                    "name": "样式",
+                    "type": "select",
+                    "options": [
+                      {
+                        "value": "none",
+                        "label": "无"
+                      },
+                      {
+                        "value": "solid",
+                        "label": "实线"
+                      },
+                      {
+                        "value": "double",
+                        "label": "双实线"
+                      },
+                      {
+                        "value": "dotted",
+                        "label": "圆点"
+                      },
+                      {
+                        "value": "dashed",
+                        "label": "虚线"
+                      },
+                      {
+                        "value": "wavy",
+                        "label": "波浪线"
+                      }
+                    ],
+                    "default": "solid",
+                    "col": 12
+                  },
+                  "color": {
+                    "name": "颜色",
+                    "type": "color",
+                    "default": "rgba(255,255,255,0.8)",
+                    "col": 12
+                  },
+                  "line": {
+                    "name": "类型",
+                    "type": "select",
+                    "options": [
+                      {
+                        "name": "下划线",
+                        "value": "underline"
+                      },
+                      {
+                        "name": "上划线",
+                        "value": "overline"
+                      },
+                      {
+                        "name": "删除线",
+                        "value": "line-through"
+                      }
+                    ],
+                    "default": "underline",
+                    "col": 12
+                  }
+                }
+              }
+            },
+            {
+              "name": "align",
+              "value": {
+                "name": "位置",
+                "type": "select",
+                "options": [
+                  {
+                    "name": "居左",
+                    "value": "left"
+                  },
+                  {
+                    "name": "居中",
+                    "value": "center"
+                  },
+                  {
+                    "name": "居右",
+                    "value": "right"
+                  }
+                ],
+                "default": "center"
+              }
+            }
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "collection name"
+              },
+              "value": {
+                "type": "object",
+                "description": "collection value",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": true,
+                  "required": [
+                    "name",
+                    "type"
+                  ]
+                }
               }
             },
             "additionalProperties": false,

@@ -5,12 +5,10 @@ const prettier = require("prettier");
 
 import * as vscode from "vscode";
 import { readHtml } from "./util";
-import { NodeCollectionProvider } from "./collection";
-import { DictionaryView, NodeDictionaryProvider } from "./dictionary";
+import { DictionaryView } from "./dictionary";
+import { CollectionView } from "./collection";
 
 const { transform } = require("./tansform");
-
-let provider: vscode.TreeDataProvider<any>;
 
 const createPanel = async (context: vscode.ExtensionContext) => {
   const panel = vscode.window.createWebviewPanel(
@@ -41,7 +39,11 @@ const createPanel = async (context: vscode.ExtensionContext) => {
       const res = transform(JSON.parse(content));
       panel.webview.postMessage({ type: "update", data: res });
     } catch (error) {
-      console.log("content error");
+      console.log("content error", error);
+      panel.webview.postMessage({
+        type: "update",
+        data: "转换错误, 选中的数据应为可转换为JSON的对象格式(可包含代码备注信息)",
+      });
     }
   }
 
@@ -56,46 +58,22 @@ const createPanel = async (context: vscode.ExtensionContext) => {
 };
 
 const runTransformCommand = async (context: vscode.ExtensionContext) => {
-  const panel = await createPanel(context);
-};
-
-const runAddCollectionCommand = async (context: vscode.ExtensionContext) => {
-  const res = (
-    await vscode.window.showInputBox({
-      prompt: "Enter the repository description",
-      placeHolder: "Repository description (optional)",
-      value: "\r\n",
-      ignoreFocusOut: true,
-    })
-  )?.trim();
-  console.log("showInputBox", res);
+  await createPanel(context);
 };
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "props2options" is now active!');
 
   /* commands */
   vscode.commands.registerCommand("props2options.transform", () =>
     runTransformCommand(context)
   );
-  vscode.commands.registerCommand("props2options.addCollection", () =>
-    runAddCollectionCommand(context)
-  );
 
   //sidebar
-  vscode.window.registerTreeDataProvider(
-    "collectionsView",
-    new NodeCollectionProvider()
-  );
-
-  const dictionaryView = new DictionaryView(context);
-  // const collectionsView = vscode.window.createTreeView("collectionsView", {
-  //   treeDataProvider: provider,
-  // });
+  new CollectionView(context);
+  new DictionaryView(context);
 }
 
 // This method is called when your extension is deactivated
