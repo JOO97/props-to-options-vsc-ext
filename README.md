@@ -1,6 +1,6 @@
 # props2options README
 
-This is the README for your extension "props2options". After writing up a brief description, we recommend including the following sections.
+After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
